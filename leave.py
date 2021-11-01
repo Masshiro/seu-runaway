@@ -61,7 +61,6 @@ def leave(sess, username, reason):
     get_personal_info = get_info(sess, header, username)
     
     get_personal_info.encoding = 'utf-8'
-    print(get_personal_info.text)
     raw_personal_info = re.search('"rows":\[\{(.*?)}', get_personal_info.text).group(1)
     raw_personal_info = raw_personal_info.split(',')
 
@@ -97,7 +96,6 @@ def leave(sess, username, reason):
     post_info['SFDSQ'] = "0"
     post_info = {'data':str(post_info)}
     
-    print(post_info)
     leave_url = "http://ehall.seu.edu.cn/ygfw/sys/xsqjappseuyangong/modules/leaveApply/addLeaveApply.do"
     leave = sess.post(leave_url, data=post_info, headers=header)
     leave.encoding = 'utf-8'
