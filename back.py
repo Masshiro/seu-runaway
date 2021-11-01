@@ -89,7 +89,6 @@ def back(sess, username):
 
     post_info = {'data':str(post_info)}
     
-    print(post_info)
     back_url = "http://ehall.seu.edu.cn/ygfw/sys/xsqjappseuyangong/modules/leaveApply/addXjApply.do"
     back = sess.post(back_url, data=post_info, headers=header)
     back.encoding = 'utf-8'
