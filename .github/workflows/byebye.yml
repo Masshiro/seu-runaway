@@ -41,4 +41,4 @@ jobs:
       # Leave
       - name: Leave
         run: |
-          python ./leave.py ${{ secrets.USERNAME }} ${{ secrets.PASSWORD }} 去无线谷实验室
+          python ./leave.py ${{ secrets.USERNAME }} ${{ secrets.PASSWORD }} 去无线谷实验室导师知晓且同意
