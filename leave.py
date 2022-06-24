@@ -9,11 +9,15 @@ import json
 
 def login(sess, uname, pwd):
     salt_url = 'http://ehall.seu.edu.cn/qljfwapp2/sys/lwReportEpidemicSeu/index.do'
-    salt_response = sess.get(salt_url)
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.124 Safari/537.36 Edg/10'}
+    salt_response = sess.get(salt_url, headers=headers)
     salt_response.encoding = 'utf-8'
     lt = re.search('name="lt" value="(.*?)"', salt_response.text).group(1)
-    salt = re.search('id="pwdDefaultEncryptSalt" value="(.*?)"', salt_response.text).group(1)
-    execution = re.search('name="execution" value="(.*?)"', salt_response.text).group(1)
+    salt = re.search('id="pwdDefaultEncryptSalt" value="(.*?)"',
+                     salt_response.text).group(1)
+    execution = re.search('name="execution" value="(.*?)"',
+                          salt_response.text).group(1)
     f = open("encrypt.js", 'r', encoding='UTF-8')
     line = f.readline()
     js = ''
@@ -31,7 +35,7 @@ def login(sess, uname, pwd):
                      'execution': execution,
                      '_eventId': 'submit',
                      'rmShown': '1'}
-    login_response = sess.post(login_url, personal_info)
+    login_response = sess.post(login_url, personal_info, headers=headers)
     login_response.encoding = 'utf-8'
 
     if re.search("学院", login_response.text):
@@ -42,18 +46,21 @@ def login(sess, uname, pwd):
 
 
 def get_header(sess, cookie_url):
-    cookie_response = sess.get(cookie_url)
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.124 Safari/537.36 Edg/10'}
+    cookie_response = sess.get(cookie_url, headers=headers)
     weu = requests.utils.dict_from_cookiejar(cookie_response.cookies)['_WEU']
     cookie = requests.utils.dict_from_cookiejar(sess.cookies)
 
     header = {'Referer': 'http://ehall.seu.edu.cn/qljfwapp2/sys/lwReportEpidemicSeu/index.do',
-              'Cookie': '_WEU=' + weu + '; MOD_AUTH_CAS=' + cookie['MOD_AUTH_CAS'] + ';'}
+              'Cookie': '_WEU=' + weu + '; MOD_AUTH_CAS=' + cookie['MOD_AUTH_CAS'] + ';', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.124 Safari/537.36 Edg/10'}
     return header
 
 
 def get_info(sess, header, username):
     info_url = 'http://ehall.seu.edu.cn/ygfw/sys/xsqjappseuyangong/modules/wdqj/wdqjbg.do'
-    info_response = sess.post(info_url, data={"XSBH":username}, headers=header)
+    info_response = sess.post(
+        info_url, data={"XSBH": username}, headers=header)
     return info_response
 
 
@@ -61,7 +68,7 @@ def leave(sess, username, reason):
     cookie_url = 'http://ehall.seu.edu.cn/ygfw/sys/swpubapp/indexmenu/getAppConfig.do?appId=5869188708264821&appName=xsqjappseuyangong'
     header = get_header(sess, cookie_url)
     info = get_info(sess, header, username)
-    
+
     info.encoding = 'utf-8'
     raw_info = re.search('"rows":\[(.*?)\]', info.text).group(1)
     raw_info = raw_info.split("},")
@@ -72,7 +79,8 @@ def leave(sess, username, reason):
             leave += '}'
         leave_list.append(json.loads(leave))
 
-    post_key = ['QJLX_DISPLAY', 'QJLX', 'DZQJSY_DISPLAY', 'DZQJSY', 'QJXZ_DISPLAY', 'QJXZ', 'QJFS_DISPLAY', 'QJFS', 'YGLX_DISPLAY', 'YGLX', 'SQSM', 'QJKSRQ', 'QJJSRQ', 'QJTS', 'QJSY', 'ZMCL', 'SJH', 'DZSFLX_DISPLAY', 'DZSFLX', 'HDXQ_DISPLAY', 'HDXQ', 'DZSFLN_DISPLAY', 'DZSFLN', 'DZSFLKJSS_DISPLAY', 'DZSFLKJSS', 'DZ_SFCGJ_DISPLAY', 'DZ_SFCGJ', 'DZ_GJDQ_DISPLAY', 'DZ_GJDQ', 'QXSHEN_DISPLAY', 'QXSHEN', 'QXSHI_DISPLAY', 'QXSHI', 'QXQ_DISPLAY', 'QXQ', 'QXJD', 'XXDZ', 'JTGJ_DISPLAY', 'JTGJ', 'CCHBH', 'SQBH', 'XSBH', 'JJLXR', 'JJLXRDH', 'JZXM', 'JZLXDH', 'DSXM', 'DSDH', 'FDYXM', 'FDYDH', 'SFDSQ']
+    post_key = ['QJLX_DISPLAY', 'QJLX', 'DZQJSY_DISPLAY', 'DZQJSY', 'QJXZ_DISPLAY', 'QJXZ', 'QJFS_DISPLAY', 'QJFS', 'YGLX_DISPLAY', 'YGLX', 'SQSM', 'QJKSRQ', 'QJJSRQ', 'QJTS', 'QJSY', 'ZMCL', 'SJH', 'DZSFLX_DISPLAY', 'DZSFLX', 'HDXQ_DISPLAY', 'HDXQ', 'DZSFLN_DISPLAY', 'DZSFLN', 'DZSFLKJSS_DISPLAY',
+                'DZSFLKJSS', 'DZ_SFCGJ_DISPLAY', 'DZ_SFCGJ', 'DZ_GJDQ_DISPLAY', 'DZ_GJDQ', 'QXSHEN_DISPLAY', 'QXSHEN', 'QXSHI_DISPLAY', 'QXSHI', 'QXQ_DISPLAY', 'QXQ', 'QXJD', 'XXDZ', 'JTGJ_DISPLAY', 'JTGJ', 'CCHBH', 'SQBH', 'XSBH', 'JJLXR', 'JJLXRDH', 'JZXM', 'JZLXDH', 'DSXM', 'DSDH', 'FDYXM', 'FDYDH', 'SFDSQ']
 
     last_leave = leave_list[0]
     post_info = {}
@@ -89,8 +97,10 @@ def leave(sess, username, reason):
     post_info['SQBH'] = ""
     post_info['XSBH'] = ""
     post_info['QJTS'] = "1"
-    post_info['QJKSRQ'] = (datetime.datetime.now() + datetime.timedelta(days=+1)).strftime("%Y-%m-%d") + " 07:00"
-    post_info['QJJSRQ'] = (datetime.datetime.now() + datetime.timedelta(days=+1)).strftime("%Y-%m-%d") + " 23:00"
+    post_info['QJKSRQ'] = (datetime.datetime.now(
+    ) + datetime.timedelta(days=+1)).strftime("%Y-%m-%d") + " 07:00"
+    post_info['QJJSRQ'] = (datetime.datetime.now(
+    ) + datetime.timedelta(days=+1)).strftime("%Y-%m-%d") + " 23:00"
     post_info['QJFS_DISPLAY'] = "请假"
     post_info['QJFS'] = "1"
     post_info['QJSY'] = reason
@@ -100,7 +110,7 @@ def leave(sess, username, reason):
     post_info['CCHBH'] = ""
     post_info['SFDSQ'] = "0"
 
-    post_info = {'data':str(post_info)}
+    post_info = {'data': str(post_info)}
     print(post_info)
 
     leave_url = "http://ehall.seu.edu.cn/ygfw/sys/xsqjappseuyangong/modules/leaveApply/addLeaveApply.do"
@@ -130,4 +140,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
